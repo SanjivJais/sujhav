@@ -2,7 +2,6 @@
 using NepSolve.Models.Entities;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
-using System.Text;
 
 namespace NepSolve.Utilities
 {
@@ -26,7 +25,9 @@ namespace NepSolve.Utilities
                 new Claim(ClaimTypes.Role, user.Role),
             };
 
-            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]));
+            var hexKey = _configuration["Jwt:Key"];
+            var keyBytes = HexToByte.HexStringToByteArray(hexKey);
+            var key = new SymmetricSecurityKey(keyBytes);
 
             var cred = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
