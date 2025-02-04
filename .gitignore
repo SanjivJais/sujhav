@@ -1,0 +1,19 @@
+# Logs
+logs/
+*.log
+
+# Environment variables
+.env
+
+# .NET-related
+backend/bin/
+backend/obj/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE-specific files
+.vscode/
+.idea/
+backend/.vs/

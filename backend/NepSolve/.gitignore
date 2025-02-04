@@ -1,0 +1,38 @@
+# Ignore build outputs
+bin/
+obj/
+*.dll
+*.exe
+*.pdb
+*.log
+*.cache
+
+# User-specific files
+.vscode/
+.idea/
+*.user
+*.suo
+
+# Ignore environment and secrets
+.env
+secrets.json
+appsettings.json
+appsettings.Development.json
+
+# Ignore package-related files
+node_modules/
+wwwroot/
+dist/
+
+# Ignore migrations (optional, if you don't want to push database migrations)
+Migrations/
+
+# Ignore database files
+*.db
+*.sqlite
+*.mdf
+*.ldf
+
+# Ignore publish and deployment files
+publish/
+*.publishsettings
