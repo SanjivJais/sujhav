@@ -29,8 +29,8 @@ namespace NepSolve.Controllers
         {
             try
             {
-                if (string.IsNullOrWhiteSpace(request.Email) || string.IsNullOrWhiteSpace(request.Password))
-                    return BadRequest(new {message = "Email and password are required." });
+                if (string.IsNullOrWhiteSpace(request.Email) || string.IsNullOrWhiteSpace(request.Password) || string.IsNullOrWhiteSpace(request.Username))
+                    return BadRequest(new {message = "Fields are required." });
 
                 var existingUserByEmail = await _users.Find(u => u.Email == request.Email).FirstOrDefaultAsync();
                 if (existingUserByEmail != null)
@@ -45,7 +45,6 @@ namespace NepSolve.Controllers
 
                 var newUser = new User
                 {
-                    DisplayName = request.DisplayName,
                     Email = request.Email,
                     Username = request.Username,
                     Password = hashedPass,

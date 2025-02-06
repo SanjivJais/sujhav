@@ -21,12 +21,12 @@ export const SideMenu = () => {
         },
     ]
     return (
-        <div className='bg-accent rounded-md p-4 flex flex-col gap-3'>
+        <div className='bg-accent rounded-md p-4 flex flex-col items-center gap-3'>
             {menu.map((item) => (
                 <Link
                     key={item.name}
                     href={item.href}
-                    className='text-muted-foreground hover:text-primary text-center'
+                    className='text-muted-foreground hover:text-primary text-center w-fit'
                 >
                     {item.name}
                 </Link>

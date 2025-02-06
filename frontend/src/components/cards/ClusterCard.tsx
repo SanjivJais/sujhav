@@ -3,25 +3,26 @@ import { toPascalCase } from '@/utils/toPascalCase'
 import { Box } from 'lucide-react'
 import React from 'react'
 import { format } from "date-fns";
+import Link from 'next/link';
 
 export const ClusterCard = ({ cluster }: { cluster: ICluster }) => {
     
     return (
-        <div className='bg-transparent border rounded-xl p-4 flex flex-col gap-2 hover:bg-accent/50 cursor-pointer'>
+        <div className='bg-transparent border rounded-xl p-4 flex flex-col gap-2 hover:bg-accent/50'>
             <div className='text-[12px] text-muted-foreground'>{format(new Date(cluster.createdAt).toLocaleDateString(), "do MMM")}</div>
-            <div>{cluster.topic}</div>
+            <div className='text-lg font-medium hover:text-primary cursor-pointer w-fit'>{cluster.topic}</div>
             <p className='text-muted-foreground text-sm'>{cluster.clusterSummary}</p>
 
             <div className="flex gap-2">
                 {cluster.tags.map((tag) => {
                     const tagLabel = toPascalCase(tag);
-                    return (<div key={tag} className='text-blue-400 text-sm'>{`#${tagLabel}`}</div>)
+                    return (<Link href={`/u?tag=${tag}`} key={tag} className='text-blue-400 text-sm hover:underline'>{`#${tagLabel}`}</Link>)
                 })}
             </div>
 
             <div className="flex mt-2">
-                <div title='Posts' className="flex items-center gap-1">
-                    <Box className="h-4 w-4 text-muted-foreground" />
+                <div title='Posts' className="flex items-center gap-1 group hover:cursor-pointer hover:text-primary">
+                    <Box className="h-4 w-4 text-muted-foreground group-hover:text-primary" />
                     {cluster.posts.length}
                 </div>
             </div>
