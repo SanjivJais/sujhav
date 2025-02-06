@@ -1,3 +1,4 @@
+"use client"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
@@ -5,16 +6,51 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import Link from "next/link"
 import Image from "next/image"
+import { useLogin } from "@/hooks/useAuth"
+import { useRouter } from "next/navigation"
+import { toast } from "sonner"
+import { AxiosError } from "axios"
 
 export function LoginForm({
     className,
     ...props
 }: React.ComponentProps<"div">) {
+
+    const loginMutate = useLogin();
+    const router = useRouter();
+
+
+    const handleFormSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+        event.preventDefault()
+        const formData = new FormData(event.currentTarget)
+        const email = formData.get("email") as string
+        const password = formData.get("password") as string
+
+        if (!email || !password) {
+            toast.error("Please enter email and password");
+            return;
+        }
+        try {
+            await loginMutate.mutateAsync({ email, password })
+            router.push("/u");
+        } catch (error) {
+            let errorMessage = "Something went wrong!"; // Default error message
+            // Check if error is an instance of AxiosError
+            if (error instanceof AxiosError) {
+                errorMessage = error.response?.data?.message || "Something went wrong!";
+            } else if (error instanceof Error) {
+                errorMessage = error.message; // Handle generic JavaScript errors
+            }
+            toast.error(errorMessage);
+        }
+    }
+
+
     return (
         <div className={cn("flex flex-col gap-6", className)} {...props}>
             <Card className="overflow-hidden">
                 <CardContent className="grid p-0 md:grid-cols-2">
-                    <form className="p-6 md:p-8 border-r">
+                    <form onSubmit={handleFormSubmit} className="p-6 md:p-8 border-r">
                         <div className="flex flex-col gap-6">
                             <div className="flex flex-col items-center text-center">
                                 <h1 className="text-2xl font-bold">Welcome back</h1>
@@ -26,6 +62,7 @@ export function LoginForm({
                                 <Label htmlFor="email">Email</Label>
                                 <Input
                                     id="email"
+                                    name="email"
                                     type="email"
                                     placeholder="m@example.com"
                                     required
@@ -41,10 +78,10 @@ export function LoginForm({
                                         Forgot password?
                                     </Link>
                                 </div>
-                                <Input id="password" type="password" required />
+                                <Input name="password" id="password" type="password" required />
                             </div>
-                            <Button type="submit" className="w-full">
-                                Login
+                            <Button disabled={loginMutate.isPending} type="submit" className="w-full">
+                                {loginMutate.isPending ? "Logging in..." : "Login"}
                             </Button>
                             <div className="relative text-center text-sm after:absolute after:inset-0 after:top-1/2 after:z-0 after:flex after:items-center after:border-t after:border-border">
                                 <span className="relative z-10 bg-card px-2 text-muted-foreground">

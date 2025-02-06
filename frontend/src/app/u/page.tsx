@@ -1,3 +1,4 @@
+"use client"
 import { ProfileHighlight } from '@/components/cards/ProfileHighlight'
 import { TopTags } from '@/components/cards/TopTags'
 import { TopUsers } from '@/components/cards/TopUsers'

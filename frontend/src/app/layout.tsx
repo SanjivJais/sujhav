@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
 import { Poppins } from "next/font/google";
 import "./globals.css";
-import { ThemeProvider } from "@/providers/theme-provider";
+import { ThemeProvider } from "@/providers/ThemeProvider";
+import { TanstackQueryClientProvider } from "@/providers/TanstackQueryClientProvider";
+import { Toaster } from "sonner";
 
 const poppins = Poppins({
   weight: ["100", "200", "300", "400", "500", "600", "700", "800", "900"],
@@ -30,7 +32,10 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          {children}
+          <Toaster richColors position="top-center" />
+          <TanstackQueryClientProvider>
+              {children}
+          </TanstackQueryClientProvider>
         </ThemeProvider>
       </body>
     </html>

@@ -69,24 +69,13 @@ namespace NepSolve.Controllers
                     return BadRequest(new { message = "Email and password are required." });
                 var user = await _users.Find(u => u.Email == request.Email).FirstOrDefaultAsync();
                 if (user == null)
-                    return NotFound(new { message = "User not found." });
+                    return NotFound(new { message = "Invalid credentials." });
                 if (!BCrypt.Net.BCrypt.Verify(request.Password, user.Password))
                     return Unauthorized(new { message = "Invalid credentials." });
                 // Generate JWT token
                 var token = _jwtHandler.GenerateToken(user);
 
-                var response = new AuthResponseDTO
-                {
-                    Id = user.Id,
-                    Email = user.Email,
-                    Username = user.Username,
-                    DisplayName = user.DisplayName,
-                    Role = user.Role,
-                    Token = token,
-                    CreatedAt = user.CreatedAt,
-                };
-
-                return Ok(response);
+                return Ok(token);
             }
             catch (Exception ex)
             {
