@@ -55,7 +55,7 @@ export function LoginForm({
                             <div className="flex flex-col items-center text-center">
                                 <h1 className="text-2xl font-bold">Welcome back</h1>
                                 <p className="text-balance text-muted-foreground">
-                                    Login to your NepSolve account
+                                    Login to your Sujhav account
                                 </p>
                             </div>
                             <div className="grid gap-2">

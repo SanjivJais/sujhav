@@ -1,6 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { loginUser, registerUser, fetchUserProfile } from "@/services/authService";
-// import { useAuthStore } from "@/store/authStore";
 import { getToken, removeToken, setToken } from "@/lib/token";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
@@ -20,7 +19,7 @@ export const useRegister = () => {
     return useMutation({
         mutationFn: registerUser,
         onSuccess: () => {
-            toast.success("Registration successful!");
+            toast.success("Your account created!");
         },
     });
 };
@@ -29,7 +28,6 @@ export const useRegister = () => {
 export const useUserProfile = () => {
     const queryClient = useQueryClient();
     const router = useRouter()
-    // const { setUser } = useAuthStore();
 
     const query = useQuery({
         queryKey: ["user"],
@@ -44,9 +42,7 @@ export const useUserProfile = () => {
         router.push("/auth/login"); // Redirect to login page
     }
 
-    // ✅ Sync Zustand store when query data changes
     if (query.data) {
-        // setUser(query.data);
         queryClient.setQueryData(["user"], query.data);
     }
 

@@ -36,11 +36,23 @@ builder.Services.AddScoped<JwtHandler>();
 // Define a CORS policy
 builder.Services.AddCors(options =>
 {
+    // options.AddPolicy("AllowFrontend", policy =>
+    // {
+    //     policy.WithOrigins("https://sujhav.vercel.app")
+    //           .AllowAnyHeader()
+    //           .AllowAnyMethod();
+    // });
+
     options.AddPolicy("AllowFrontend", policy =>
     {
-        policy.WithOrigins("http://localhost:3000") // Add your frontend URL here
-              .AllowAnyHeader()
-              .AllowAnyMethod();
+        policy.SetIsOriginAllowed(origin => new[]
+        {
+            "https://sujhav.vercel.app",
+            "http://localhost:3001"
+        }.Contains(origin)) // ✅ Dynamically allow specific origins
+        .AllowAnyHeader()
+        .AllowAnyMethod()
+        .AllowCredentials(); // ✅ Required if using cookies or authentication headers
     });
 });
 

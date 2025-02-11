@@ -13,7 +13,7 @@ export const ClusterCard = ({ cluster }: { cluster: ICluster }) => {
             <div className='text-lg font-medium hover:text-primary cursor-pointer w-fit'>{cluster.topic}</div>
             <p className='text-muted-foreground text-sm'>{cluster.clusterSummary}</p>
 
-            <div className="flex gap-2">
+            <div className="flex flex-wrap gap-2">
                 {cluster.tags.map((tag) => {
                     const tagLabel = toPascalCase(tag);
                     return (<Link href={`/u?tag=${tag}`} key={tag} className='text-blue-400 text-sm hover:underline'>{`#${tagLabel}`}</Link>)

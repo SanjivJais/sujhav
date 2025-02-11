@@ -12,7 +12,7 @@ const poppins = Poppins({
 });
 
 export const metadata: Metadata = {
-  title: "NepSolve",
+  title: "Sujhav - Solving Nepal Together!",
   description: "Solving Nepal Together",
 };
 
