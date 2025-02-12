@@ -138,19 +138,15 @@ export const CreatePost = ({ isOpen, setIsOpen }: CreatePostProps) => {
                         />
                     </div>
                     <div className="flex flex-col gap-3">
-                        <Label htmlFor='region' className='w-fit'>Regional Context</Label>
+                        <Label htmlFor='region' className='w-fit'>Regional Context <span className='text-muted-foreground text-[12px]'>(up to 3)</span></Label>
                         <Popover open={isRegionOpen} onOpenChange={setIsRegionOpen}>
                             <PopoverTrigger id='region' asChild>
-                                <div className="flex flex-col gap-1">
-                                    <Button variant="outline" role="combobox" aria-expanded={isRegionOpen} className={`font-normal justify-between text-muted-foreground`}>
-                                        {selectedRegions.length > 0
-                                            ? selectedRegions.join(", ") // Show selected regions
-                                            : "Search or create region..."}
-                                        <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                                    </Button>
-                                    <p className='text-muted-foreground text-[12px] ml-1'>Select up to 3 regions</p>
-                                </div>
-
+                                <Button variant="outline" role="combobox" aria-expanded={isRegionOpen} className={`font-normal justify-between text-muted-foreground`}>
+                                    {selectedRegions.length > 0
+                                        ? selectedRegions.join(", ") // Show selected regions
+                                        : "Search or create region..."}
+                                    <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                                </Button>
                             </PopoverTrigger>
                             <PopoverContent className="lg:w-[568px] md:w-[400px] w-[300px] p-0">
                                 <Command>
@@ -159,7 +155,7 @@ export const CreatePost = ({ isOpen, setIsOpen }: CreatePostProps) => {
                                         onValueChange={setInputValue}
                                         placeholder="Search or create region..."
                                     />
-                                    <CommandList className='max-h-[150px] overflow-y-auto'>
+                                    <CommandList className='max-h-[170px] overflow-y-auto'>
                                         {filteredRegions && filteredRegions.length > 0 ? (
                                             <CommandGroup>
                                                 {filteredRegions.map((region) => (
