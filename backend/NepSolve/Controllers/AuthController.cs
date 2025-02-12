@@ -111,6 +111,7 @@ namespace NepSolve.Controllers
                     Email = user.Email,
                     Username = user.Username,
                     DisplayName = user.DisplayName,
+                    ProfilePicture = user.ProfilePicture,
                     Role = user.Role,
                     CreatedAt = user.CreatedAt,
                 };

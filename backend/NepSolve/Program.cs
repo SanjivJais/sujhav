@@ -48,7 +48,7 @@ builder.Services.AddCors(options =>
         policy.SetIsOriginAllowed(origin => new[]
         {
             "https://sujhav.vercel.app",
-            "http://localhost:3001"
+            "http://localhost:3000"
         }.Contains(origin)) // ✅ Dynamically allow specific origins
         .AllowAnyHeader()
         .AllowAnyMethod()

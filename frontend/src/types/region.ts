@@ -3,4 +3,10 @@ export interface IRegion {
     createdBy: string
     regionName: string
     createdAt: string
+    updatedAt: string
+}
+
+export interface ICreateRegion {
+    createdBy: string
+    regionName: string
 }

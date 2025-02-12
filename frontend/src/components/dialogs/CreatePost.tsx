@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import {
     Dialog,
     DialogContent,
@@ -28,15 +28,12 @@ import {
 } from "@/components/popoverDialog"
 
 import { Check, ChevronsUpDown, PlusCircle } from 'lucide-react';
+import { capitalizeString } from '@/utils/capitalizeString'
+import { useCreateRegion, useFetchRegions } from '@/hooks/useRegion';
+import { toast } from 'sonner';
+import { useUserProfile } from '@/hooks/useAuth';
+import { useQueryClient } from '@tanstack/react-query';
 import { IRegion } from '@/types/region';
-
-const regions: IRegion[] = [
-    { id: "1", createdBy: "1", regionName: "Kathmandu", createdAt: "2023-10-02T10:15:00Z" },
-    { id: "2", createdBy: "2", regionName: "Pokhara", createdAt: "2023-10-02T10:15:00Z" },
-    { id: "3", createdBy: "3", regionName: "Bhaktapur", createdAt: "2023-10-02T10:15:00Z" },
-    { id: "4", createdBy: "4", regionName: "Lalitpur", createdAt: "2023-10-02T10:15:00Z" },
-    { id: "5", createdBy: "5", regionName: "Biratnagar", createdAt: "2023-10-02T10:15:00Z" },
-];
 
 
 interface CreatePostProps {
@@ -46,18 +43,78 @@ interface CreatePostProps {
 
 export const CreatePost = ({ isOpen, setIsOpen }: CreatePostProps) => {
 
+    const { data: regions } = useFetchRegions();
+    const regionMutate = useCreateRegion();
+    const { data: user } = useUserProfile()
+    const queryClient = useQueryClient();
+
     const [isRegionOpen, setIsRegionOpen] = useState(false)
-    const [selectedRegion, setSelectedRegion] = useState<string | null>(null);
+    const [selectedRegions, setSelectedRegions] = useState<string[]>([]);
+    const [content, setContent] = useState('');
+
+    const toggleRegionSelection = async (regionName: string) => {
+        setSelectedRegions((prev) => {
+            if (prev.includes(regionName)) {
+                // Remove if already selected
+                return prev.filter((r) => r !== regionName);
+            } else {
+                // Add if less than 3 regions selected
+                return prev.length < 3 ? [...prev, regionName] : prev;
+            }
+        });
+    };
 
     const [inputValue, setInputValue] = useState("");
 
-    const filteredRegions = regions.filter((region) =>
+    const filteredRegions = regions?.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()).filter((region) =>
         region.regionName.toLowerCase().includes(inputValue.toLowerCase())
     );
 
+    useEffect(() => {
+        if (isOpen) {
+            setInputValue("");
+            setSelectedRegions([]);
+            setContent("");
+        }
+    }, [isOpen]);
+
+    const handleCreateRegion = async () => {
+        try {
+            const regionName = inputValue.trim();
+            if (regionName.length > 2) {
+                if (!user) {
+                    toast.error("Something went wrong, please try again!");
+                    return;
+                }
+
+                // Create the region via API
+                const response = await regionMutate.mutateAsync({ createdBy: user.id, regionName });
+
+                // ✅ Update TanStack Query cache immediately
+                queryClient.setQueryData(["regions"], (oldRegions: IRegion[] = []) => [...oldRegions, response]);
+
+                // Update selected regions, removing inputValue if it was there
+                setSelectedRegions((prev) => {
+                    const filtered = prev.filter((r) => r !== inputValue);
+                    return [...filtered, response.regionName]; // Add only the new region
+                });
+
+                // Clear input field
+                setInputValue("");
+            } else {
+                toast.error("Region name must contain at least 3 letters");
+            }
+        } catch (error) {
+            console.error("Error creating region:", error);
+        }
+    };
+
     const handlePostCreate = async () => {
+        console.log(content, selectedRegions);
         return
     }
+
+
     return (
         <Dialog open={isOpen} onOpenChange={setIsOpen}>
             <DialogContent className='w-[90vw] max-w-[600px] p-0'>
@@ -73,19 +130,27 @@ export const CreatePost = ({ isOpen, setIsOpen }: CreatePostProps) => {
                         <Label htmlFor='content' className='w-fit'>Content</Label>
                         <Textarea
                             id='content'
+                            value={content}
                             placeholder='Have any suggestion, idea, or saw a problem anywhere? Write it down...'
                             className='w-full text-sm text-muted-foreground'
-                            rows={7}
+                            rows={6}
+                            onChange={(e) => setContent(e.target.value)}
                         />
                     </div>
                     <div className="flex flex-col gap-3">
                         <Label htmlFor='region' className='w-fit'>Regional Context</Label>
                         <Popover open={isRegionOpen} onOpenChange={setIsRegionOpen}>
                             <PopoverTrigger id='region' asChild>
-                                <Button variant="outline" role="combobox" aria-expanded={isRegionOpen} className={`font-normal justify-between text-muted-foreground`}>
-                                    {selectedRegion || "Search or create region..."}
-                                    <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                                </Button>
+                                <div className="flex flex-col gap-1">
+                                    <Button variant="outline" role="combobox" aria-expanded={isRegionOpen} className={`font-normal justify-between text-muted-foreground`}>
+                                        {selectedRegions.length > 0
+                                            ? selectedRegions.join(", ") // Show selected regions
+                                            : "Search or create region..."}
+                                        <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                                    </Button>
+                                    <p className='text-muted-foreground text-[12px] ml-1'>Select up to 3 regions</p>
+                                </div>
+
                             </PopoverTrigger>
                             <PopoverContent className="lg:w-[568px] md:w-[400px] w-[300px] p-0">
                                 <Command>
@@ -94,23 +159,19 @@ export const CreatePost = ({ isOpen, setIsOpen }: CreatePostProps) => {
                                         onValueChange={setInputValue}
                                         placeholder="Search or create region..."
                                     />
-                                    <CommandList>
-                                        {filteredRegions.length > 0 ? (
+                                    <CommandList className='max-h-[150px] overflow-y-auto'>
+                                        {filteredRegions && filteredRegions.length > 0 ? (
                                             <CommandGroup>
                                                 {filteredRegions.map((region) => (
                                                     <CommandItem
                                                         key={region.id}
                                                         value={region.regionName}
-                                                        onSelect={() => {
-                                                            setSelectedRegion(region.regionName);
-                                                            setInputValue(region.regionName); // Update input with selected region
-                                                            setIsRegionOpen(false);
-                                                        }}
+                                                        onSelect={() => toggleRegionSelection(region.regionName)}
                                                     >
                                                         <Check
                                                             className={cn(
                                                                 "mr-2 h-4 w-4",
-                                                                selectedRegion === region.regionName ? "opacity-100" : "opacity-0"
+                                                                selectedRegions.includes(region.regionName) ? "opacity-100" : "opacity-0"
                                                             )}
                                                         />
                                                         {region.regionName}
@@ -121,20 +182,18 @@ export const CreatePost = ({ isOpen, setIsOpen }: CreatePostProps) => {
                                             <CommandEmpty>No region found.</CommandEmpty>
                                         )}
 
-                                        {inputValue &&
-                                            !filteredRegions.some(
-                                                (r) => r.regionName.toLowerCase() === inputValue.toLowerCase()
-                                            ) && (
+                                        {inputValue && filteredRegions &&
+                                            !filteredRegions.some((r) => r.regionName.toLowerCase() === inputValue.toLowerCase()) &&
+                                            selectedRegions.length < 3 && ( // Prevent adding more than 3 regions
                                                 <CommandItem
                                                     onSelect={() => {
-                                                        setSelectedRegion(inputValue);
-                                                        setInputValue(inputValue); // Set input value to searched region
-                                                        setIsRegionOpen(false);
+                                                        toggleRegionSelection(inputValue);
+                                                        handleCreateRegion();
                                                     }}
                                                     className='cursor-pointer'
                                                 >
                                                     <PlusCircle className="mr-2 h-4 w-4" />
-                                                    Create &quot;{inputValue}&quot;
+                                                    Create &quot;{capitalizeString(inputValue)}&quot;
                                                 </CommandItem>
                                             )}
                                     </CommandList>

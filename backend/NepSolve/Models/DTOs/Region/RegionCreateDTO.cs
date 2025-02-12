@@ -2,5 +2,7 @@
 {
     public class RegionCreateDTO
     {
+        public string CreatedBy { get; set; }
+        public string RegionName { get; set; }
     }
 }

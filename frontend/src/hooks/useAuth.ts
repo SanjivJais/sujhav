@@ -3,6 +3,7 @@ import { loginUser, registerUser, fetchUserProfile } from "@/services/authServic
 import { getToken, removeToken, setToken } from "@/lib/token";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
+// import { useAuthStore } from "@/store/authStore";
 
 // Login Hook
 export const useLogin = () => {
@@ -19,7 +20,7 @@ export const useRegister = () => {
     return useMutation({
         mutationFn: registerUser,
         onSuccess: () => {
-            toast.success("Your account created!");
+            toast.success("Account created, please login to continue!");
         },
     });
 };
@@ -28,6 +29,7 @@ export const useRegister = () => {
 export const useUserProfile = () => {
     const queryClient = useQueryClient();
     const router = useRouter()
+    // const { setUser } = useAuthStore()
 
     const query = useQuery({
         queryKey: ["user"],
@@ -37,13 +39,14 @@ export const useUserProfile = () => {
         retry: false, // Don't retry failed requests
     });
 
-    if(query.isError){
+    if (query.isError) {
         removeToken(); // Remove token
         router.push("/auth/login"); // Redirect to login page
     }
 
     if (query.data) {
         queryClient.setQueryData(["user"], query.data);
+        // setUser(query.data);
     }
 
     return query;

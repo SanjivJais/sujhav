@@ -12,6 +12,9 @@ namespace NepSolve.Models.Entities
         [BsonElement("displayName")]
         public string DisplayName { get; set; }
 
+        [BsonElement("profilePicture")]
+        public string ProfilePicture { get; set; }
+
         [BsonElement("username")]
         public string Username { get; set; }
 
