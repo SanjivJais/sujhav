@@ -50,7 +50,7 @@ export const CreatePost = ({ isOpen, setIsOpen }: CreatePostProps) => {
 
     const [isRegionOpen, setIsRegionOpen] = useState(false)
     const [selectedRegions, setSelectedRegions] = useState<string[]>([]);
-    const [content, setContent] = useState('');
+    const [content, setContent] = useState("");
 
     const toggleRegionSelection = async (regionName: string) => {
         setSelectedRegions((prev) => {
@@ -66,7 +66,7 @@ export const CreatePost = ({ isOpen, setIsOpen }: CreatePostProps) => {
 
     const [inputValue, setInputValue] = useState("");
 
-    const filteredRegions = regions?.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()).filter((region) =>
+    const filteredRegions = (regions ?? []).sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()).filter((region) =>
         region.regionName.toLowerCase().includes(inputValue.toLowerCase())
     );
 
