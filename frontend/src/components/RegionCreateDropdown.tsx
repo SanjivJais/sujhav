@@ -1,3 +1,4 @@
+"use client"
 import React, { useEffect, useState } from 'react'
 import { cn } from "@/lib/utils"
 import {
@@ -27,87 +28,13 @@ interface RegionCreateProps {
     setSelectedRegions: (regions: string[]) => void;
 }
 
-export const RegionCreateDropdown = ({ setSelectedRegions }: RegionCreateProps) => {
-
-    const { data: regions } = useFetchRegions();
-    const regionMutate = useCreateRegion();
-    const { data: user } = useUserProfile()
-    const queryClient = useQueryClient();
+export const RegionCreateDropdown = () => {
 
     const [filteredRegions, setFilteredRegions] = useState<IRegion[]>([]);
     const [isRegionOpen, setIsRegionOpen] = useState(false)
     const [selRegions, setSelRegions] = useState<string[]>([]);
 
     const [inputValue, setInputValue] = useState("");
-
-
-    const toggleRegionSelection = async (regionName: string) => {
-        setSelRegions((prev) => {
-            if (prev.includes(regionName)) {
-                // Remove if already selected
-                return prev.filter((r) => r !== regionName);
-            } else {
-                // Add if less than 3 regions selected
-                return prev.length < 3 ? [...prev, regionName] : prev;
-            }
-        });
-    };
-
-    useEffect(() => {
-        setSelectedRegions(selRegions);
-    }, [selRegions, setSelectedRegions]);
-
-
-    const handleCreateRegion = async () => {
-        try {
-            const regionName = inputValue.trim();
-            if (regionName.length > 2) {
-                if (!user) {
-                    toast.error("Something went wrong, please try again!");
-                    return;
-                }
-
-                // Create the region via API
-                const response = await regionMutate.mutateAsync({ createdBy: user.id, regionName });
-
-                // ✅ Update TanStack Query cache immediately
-                queryClient.setQueryData(["regions"], (oldRegions: IRegion[] = []) => [...oldRegions, response]);
-
-                // Update selected regions, removing inputValue if it was there
-                setSelRegions((prev) => {
-                    const filtered = prev.filter((r) => r !== inputValue);
-                    return [...filtered, response.regionName]; // Add only the new region
-                });
-
-                // Clear input field
-                setInputValue("");
-            } else {
-                toast.error("Region name must contain at least 3 letters");
-            }
-        } catch (error) {
-            console.error("Error creating region:", error);
-        }
-    };
-
-    const handleCreateRegionClick = async () => {
-        await handleCreateRegion(); // Ensure the region is created first
-    };
-
-    useEffect(() => {
-        if (regions && regions?.length > 0) {
-            const filtered = regions
-                .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
-                .filter((region) => region.regionName.toLowerCase().includes(inputValue.toLowerCase()));
-
-            setFilteredRegions(filtered);
-        }
-    }, [regions, inputValue]);
-
-    useEffect(() => {
-        if (regions?.some((r) => r.regionName === inputValue)) {
-            toggleRegionSelection(inputValue);
-        }
-    }, [regions, inputValue]); // Runs only when `regions` update, avoiding extra renders
 
 
     return (
@@ -123,8 +50,6 @@ export const RegionCreateDropdown = ({ setSelectedRegions }: RegionCreateProps) 
             <PopoverContent className="lg:w-[568px] md:w-[400px] w-[300px] p-0">
                 <Command>
                     <CommandInput
-                        value={inputValue}
-                        onValueChange={setInputValue}
                         placeholder="Search or create region..."
                     />
                     <CommandList className='max-h-[170px] overflow-y-auto'>
@@ -134,7 +59,6 @@ export const RegionCreateDropdown = ({ setSelectedRegions }: RegionCreateProps) 
                                     <CommandItem
                                         key={region.id}
                                         value={region.regionName}
-                                        onSelect={() => toggleRegionSelection(region.regionName)}
                                     >
                                         <Check
                                             className={cn(
@@ -154,7 +78,6 @@ export const RegionCreateDropdown = ({ setSelectedRegions }: RegionCreateProps) 
                             !filteredRegions.some((r) => r.regionName.toLowerCase() === inputValue.toLowerCase()) &&
                             selRegions.length < 3 && ( // Prevent adding more than 3 regions
                                 <CommandItem
-                                    onSelect={handleCreateRegionClick}
                                     className='cursor-pointer'
                                 >
                                     <PlusCircle className="mr-2 h-4 w-4" />

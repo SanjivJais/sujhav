@@ -13,7 +13,7 @@ import { Button } from '../ui/button';
 import { Textarea } from '../ui/textarea';
 import { Label } from '../ui/label';
 import { moderateText } from '@/services/moderateService';
-// import { RegionCreateDropdown } from '../RegionCreateDropdown';
+import { RegionCreateDropdown } from '../RegionCreateDropdown';
 import { toast } from 'sonner';
 
 
@@ -29,18 +29,7 @@ export const CreatePost = ({ isOpen, setIsOpen }: CreatePostProps) => {
     const [isPostProcessing, setIsPostProcessing] = useState(false);
 
 
-    // useEffect(() => {
-    //     if (!isOpen) return;
-
-    //     setTimeout(() => {
-    //         // setInputValue((prev) => prev !== "" ? "" : prev);
-    //         setSelectedRegions((prev) => (prev.length > 0 ? [] : prev));
-    //         setContent((prev) => (prev !== "" ? "" : prev));
-    //     }, 10); // Small delay to avoid immediate re-renders
-    // }, [isOpen]);
-
-
-
+    
     const handlePostCreate = async () => {
         setIsPostProcessing(true);
         if (content.length > 10) {
@@ -86,9 +75,9 @@ export const CreatePost = ({ isOpen, setIsOpen }: CreatePostProps) => {
                     </div>
                     <div className="flex flex-col gap-3">
                         <Label htmlFor='region' className='w-fit text-muted-foreground '>Regional Context <span className='text-[12px]'>(up to 3)</span></Label>
-                        {/* <RegionCreateDropdown
-                            setSelectedRegions={setSelectedRegions}
-                        /> */}
+                        <RegionCreateDropdown
+                            // setSelectedRegions={setSelectedRegions}
+                        />
 
                     </div>
                 </div>
