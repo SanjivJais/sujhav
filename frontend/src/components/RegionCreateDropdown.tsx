@@ -19,10 +19,9 @@ import { Check, ChevronsUpDown, PlusCircle } from 'lucide-react';
 import { capitalizeString } from '@/utils/capitalizeString'
 import { Button } from './ui/button';
 import { IRegion } from '@/types/region';
-import { useFetchRegions } from '@/hooks/useRegion';
-// import { useUserProfile } from '@/hooks/useAuth';
-// import { useQueryClient } from '@tanstack/react-query';
-// import { toast } from 'sonner';
+import { useCreateRegion, useFetchRegions } from '@/hooks/useRegion';
+import { useUserProfile } from '@/hooks/useAuth';
+import { toast } from 'sonner';
 
 interface RegionCreateProps {
     setSelectedRegions: (regions: string[]) => void;
@@ -30,6 +29,8 @@ interface RegionCreateProps {
 
 export const RegionCreateDropdown = ({ setSelectedRegions }: RegionCreateProps) => {
     const { data: regions } = useFetchRegions();
+    const { mutate: createRegion } = useCreateRegion()
+    const { data: user } = useUserProfile();
 
 
     const [filteredRegions, setFilteredRegions] = useState<IRegion[]>([]);
@@ -71,41 +72,44 @@ export const RegionCreateDropdown = ({ setSelectedRegions }: RegionCreateProps) 
 
     // ===============================================//
 
-    // const handleCreateRegion = async () => {
-    //     try {
-    //         const regionName = inputValue.trim();
-    //         if (regionName.length > 2) {
-    //             if (!user) {
-    //                 toast.error("Something went wrong, please try again!");
-    //                 return;
-    //             }
+    const handleCreateRegion = async () => {
+        try {
+            const regionName = inputValue.trim();
+            if (regionName.length > 2) {
+                if (!user) {
+                    toast.error("Something went wrong, please try again!");
+                    return;
+                }
 
-    //             // Create the region via API
-    //             const response = await regionMutate.mutateAsync({ createdBy: user.id, regionName });
+                createRegion({ createdBy: user.id, regionName },
+                    {
+                        onSuccess: async (response) => {
+                            setSelRegions((prev) => {
+                                const filtered = prev.filter((r) => r !== inputValue);
+                                return [...filtered, response.regionName]; // Add only the new region
+                            });
+                            setInputValue("");
+                        },
+                        onError: () => {
+                            toast.error("Region couldn't be created!");
+                        },
+                    }
+                );
+            }
+        } catch (error) {
+            console.error("Error creating region:", error);
+        }
+    }
 
-    //             // // ✅ Update TanStack Query cache immediately
-    //             // queryClient.setQueryData(["regions"], (oldRegions: IRegion[] = []) => [...oldRegions, response]);
 
-    //             // Update selected regions, removing inputValue if it was there
-    //             // setSelRegions((prev) => {
-    //             //     const filtered = prev.filter((r) => r !== inputValue);
-    //             //     return [...filtered, response.regionName]; // Add only the new region
-    //             // });
+    const handleCreateRegionClick = async () => {
+        await handleCreateRegion(); // Ensure the region is created first
+        toggleRegionSelection(inputValue);
+    };
 
-    //             // Clear input field
-    //             setInputValue("");
-    //         } else {
-    //             toast.error("Region name must contain at least 3 letters");
-    //         }
-    //     } catch (error) {
-    //         console.error("Error creating region:", error);
-    //     }
-    // };
 
-    // const handleCreateRegionClick = async () => {
-    //     await handleCreateRegion(); // Ensure the region is created first
-    //     toggleRegionSelection(inputValue);
-    // };
+    // ===============================================//
+
 
 
 
@@ -156,7 +160,7 @@ export const RegionCreateDropdown = ({ setSelectedRegions }: RegionCreateProps) 
                             selRegions.length < 3 && ( // Prevent adding more than 3 regions
                                 <CommandItem
                                     className='cursor-pointer'
-                                    // onSelect={handleCreateRegionClick}
+                                    onSelect={handleCreateRegionClick}
                                 >
                                     <PlusCircle className="mr-2 h-4 w-4" />
                                     Create &quot;{capitalizeString(inputValue)}&quot;
