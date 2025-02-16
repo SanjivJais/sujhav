@@ -42,7 +42,7 @@ const frameworks = [
     },
 ]
 
-export function RegionCreateDropdown() {
+export function ComboboxDemo() {
     const [open, setOpen] = React.useState(false)
     const [value, setValue] = React.useState("")
 

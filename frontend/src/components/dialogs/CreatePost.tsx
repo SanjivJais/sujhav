@@ -14,7 +14,9 @@ import { Textarea } from '../ui/textarea';
 import { Label } from '../ui/label';
 // import { moderateText } from '@/services/moderateService';
 import { RegionCreateDropdown } from '../RegionCreateDropdown';
-// import { toast } from 'sonner';
+import { toast } from 'sonner';
+// import { getEmbedding } from '@/services/textEmbedding';
+// import { ComboboxDemo } from '../Combobox';
 
 
 interface CreatePostProps {
@@ -24,7 +26,7 @@ interface CreatePostProps {
 
 export const CreatePost = ({ isOpen, setIsOpen }: CreatePostProps) => {
 
-    const [selectedRegions, setSelectedRegions] = useState<string[]>([]);
+    // const [selectedRegions, setSelectedRegions] = useState<string[]>([]);
     const [content, setContent] = useState<string>("");
     const [isPostProcessing, setIsPostProcessing] = useState(false);
 
@@ -32,23 +34,31 @@ export const CreatePost = ({ isOpen, setIsOpen }: CreatePostProps) => {
 
     const handlePostCreate = async () => {
         setIsPostProcessing(true);
-        // if (content.length > 10) {
-        //     try {
-        //         const response = await moderateText(content);
-        //         if (response && response.role === "assistant") {
-        //             toast.info(`Moderation result: ${response.content}`);
-        //         } else {
-        //             toast.error("Post couldn't be processed :(")
-        //         }
-        //     } catch (error) {
-        //         console.log(error);
-        //     }
-        // } else {
-        //     toast.error("Content should be at least 10 characters long");
-        // }
+        if (content.length > 10) {
+            try {
+                // const response = await moderateText(content);
+                // if (response && response.role === "assistant") {
+                //     toast.info(`Moderation result: ${response.content}`);
+                // } else {
+                //     toast.error("Post couldn't be processed :(")
+                // }
 
-        console.log(selectedRegions, content);
+                // const response = await getEmbedding(content);
+                // if (response) {
+                //     console.log(response.float);
+                //     toast.success("Post created successfully!");
+                // } else {
+                //     toast.error("Post couldn't be processed :(")
+                // }
 
+                // toast.success("Post created successfully!");
+
+            } catch (error) {
+                console.log(error);
+            }
+        } else {
+            toast.error("Content should be at least 10 characters long");
+        }
 
         setIsPostProcessing(false);
     }
@@ -78,9 +88,9 @@ export const CreatePost = ({ isOpen, setIsOpen }: CreatePostProps) => {
                     </div>
                     <div className="flex flex-col gap-3">
                         <Label htmlFor='region' className='w-fit text-muted-foreground '>Regional Context <span className='text-[12px]'>(up to 3)</span></Label>
-                        <RegionCreateDropdown
-                            setSelectedRegions={setSelectedRegions}
-                        />
+                        <RegionCreateDropdown/>
+
+                        {/* <ComboboxDemo /> */}
 
                     </div>
                 </div>
