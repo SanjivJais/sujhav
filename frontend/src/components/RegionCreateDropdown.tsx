@@ -19,32 +19,25 @@ import {
     PopoverTrigger,
 } from "@/components/popoverDialog"
 
-const frameworks = [
-    {
-        value: "next.js",
-        label: "Next.js",
-    },
-    {
-        value: "sveltekit",
-        label: "SvelteKit",
-    },
-    {
-        value: "nuxt.js",
-        label: "Nuxt.js",
-    },
-    {
-        value: "remix",
-        label: "Remix",
-    },
-    {
-        value: "astro",
-        label: "Astro",
-    },
-]
 
 export function RegionCreateDropdown() {
+    // const { data: regions, isLoading: isRegionsLoading } = useFetchRegions()
+
+    const regions = [
+        { id: "1", regionName: "Kathmandu" },
+        { id: "2", regionName: "Lalitpur" },
+        { id: "3", regionName: "Biratnagar" },
+        { id: "4", regionName: "Pokhara" },
+        { id: "5", regionName: "Bhaktapur" },
+        { id: "6", regionName: "Chitwan" },
+        { id: "7", regionName: "Dhading" },
+        { id: "8", regionName: "Sindhuli" },
+    ]
+
     const [open, setOpen] = React.useState(false)
-    const [value, setValue] = React.useState("")
+    const [selectedRegion, setSelectedRegion] = React.useState<string>("")
+
+    // if (isRegionsLoading) return <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
 
     return (
         <Popover open={open} onOpenChange={setOpen}>
@@ -53,39 +46,42 @@ export function RegionCreateDropdown() {
                     variant="outline"
                     role="combobox"
                     aria-expanded={open}
-                    className="w-full justify-between"
+                    className="w-[300px] justify-between"
                 >
-                    {value
-                        ? frameworks.find((framework) => framework.value === value)?.label
-                        : "Select framework..."}
+                    {regions && selectedRegion
+                        ? regions.find((region) => region.regionName === selectedRegion)?.regionName
+                        : "Select region..."}
                     <ChevronsUpDown className="opacity-50" />
                 </Button>
             </PopoverTrigger>
-            <PopoverContent className="w-[200px] p-0">
+            <PopoverContent className="w-[300px] p-0">
                 <Command>
                     <CommandInput placeholder="Search framework..." className="h-9" />
                     <CommandList>
+
+
                         <CommandEmpty>No framework found.</CommandEmpty>
-                        <CommandGroup>
-                            {frameworks.map((framework) => (
+
+                        {regions && regions?.length > 0 && <CommandGroup>
+                            {regions.map((region) => (
                                 <CommandItem
-                                    key={framework.value}
-                                    value={framework.value}
+                                    key={region.id}
+                                    value={region.regionName}
                                     onSelect={(currentValue) => {
-                                        setValue(currentValue === value ? "" : currentValue)
+                                        setSelectedRegion(currentValue === selectedRegion ? "" : currentValue)
                                         setOpen(false)
                                     }}
                                 >
-                                    {framework.label}
+                                    {region.regionName}
                                     <Check
                                         className={cn(
                                             "ml-auto",
-                                            value === framework.value ? "opacity-100" : "opacity-0"
+                                            selectedRegion === region.regionName ? "opacity-100" : "opacity-0"
                                         )}
                                     />
                                 </CommandItem>
                             ))}
-                        </CommandGroup>
+                        </CommandGroup>}
                     </CommandList>
                 </Command>
             </PopoverContent>

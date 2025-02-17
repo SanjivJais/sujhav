@@ -51,7 +51,7 @@ export const CreatePost = ({ isOpen, setIsOpen }: CreatePostProps) => {
                 //     toast.error("Post couldn't be processed :(")
                 // }
 
-                // toast.success("Post created successfully!");
+                toast.success("Post created successfully!");
 
             } catch (error) {
                 console.log(error);
@@ -88,7 +88,7 @@ export const CreatePost = ({ isOpen, setIsOpen }: CreatePostProps) => {
                     </div>
                     <div className="flex flex-col gap-3">
                         <Label htmlFor='region' className='w-fit text-muted-foreground '>Regional Context <span className='text-[12px]'>(up to 3)</span></Label>
-                        <RegionCreateDropdown/>
+                        <RegionCreateDropdown />
 
                         {/* <ComboboxDemo /> */}
 

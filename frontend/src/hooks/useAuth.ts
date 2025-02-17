@@ -29,7 +29,6 @@ export const useRegister = () => {
 export const useUserProfile = () => {
     const queryClient = useQueryClient();
     const router = useRouter()
-    // const { setUser } = useAuthStore()
 
     const query = useQuery({
         queryKey: ["user"],
@@ -46,7 +45,6 @@ export const useUserProfile = () => {
 
     if (query.data) {
         queryClient.setQueryData(["user"], query.data);
-        // setUser(query.data);
     }
 
     return query;
