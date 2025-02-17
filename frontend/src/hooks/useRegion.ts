@@ -1,6 +1,6 @@
 import { createRegion, fetchRegions } from "@/services/regionService";
 import { IRegion } from "@/types/region";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
 
 export const useCreateRegion = () => {
@@ -12,27 +12,6 @@ export const useCreateRegion = () => {
         }
     });
 }
-
-// export const useFetchRegions = () => {
-//     const queryClient = useQueryClient();
-
-//     const query = useQuery({
-//         queryKey: ["regions"],
-//         queryFn: fetchRegions,
-//         staleTime: 1000 * 60 * 5,
-//         retry: false
-//     });
-
-//     if (query.isError) {
-//         toast.error("Regions couldn't be fetched!");
-//     }
-
-//     if (query.data) {
-//         queryClient.setQueryData(["regions"], query.data);
-//     }
-
-//     return query;
-// }
 
 
 export const useFetchRegions = () => {

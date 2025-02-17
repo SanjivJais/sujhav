@@ -26,7 +26,7 @@ interface CreatePostProps {
 
 export const CreatePost = ({ isOpen, setIsOpen }: CreatePostProps) => {
 
-    // const [selectedRegions, setSelectedRegions] = useState<string[]>([]);
+    const [selectedRegions, setSelectedRegions] = useState<string[]>([]);
     const [content, setContent] = useState<string>("");
     const [isPostProcessing, setIsPostProcessing] = useState(false);
 
@@ -34,7 +34,7 @@ export const CreatePost = ({ isOpen, setIsOpen }: CreatePostProps) => {
 
     const handlePostCreate = async () => {
         setIsPostProcessing(true);
-        if (content.length > 10) {
+        // if (content.length > 10) {
             try {
                 // const response = await moderateText(content);
                 // if (response && response.role === "assistant") {
@@ -50,15 +50,15 @@ export const CreatePost = ({ isOpen, setIsOpen }: CreatePostProps) => {
                 // } else {
                 //     toast.error("Post couldn't be processed :(")
                 // }
-
+                console.log(selectedRegions);
                 toast.success("Post created successfully!");
 
             } catch (error) {
                 console.log(error);
             }
-        } else {
-            toast.error("Content should be at least 10 characters long");
-        }
+        // } else {
+        //     toast.error("Content should be at least 10 characters long");
+        // }
 
         setIsPostProcessing(false);
     }
@@ -88,7 +88,7 @@ export const CreatePost = ({ isOpen, setIsOpen }: CreatePostProps) => {
                     </div>
                     <div className="flex flex-col gap-3">
                         <Label htmlFor='region' className='w-fit text-muted-foreground '>Regional Context <span className='text-[12px]'>(up to 3)</span></Label>
-                        <RegionCreateDropdown />
+                        <RegionCreateDropdown setSelectedRegions={setSelectedRegions} />
 
                         {/* <ComboboxDemo /> */}
 
