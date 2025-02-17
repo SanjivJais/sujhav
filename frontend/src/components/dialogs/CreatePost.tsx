@@ -16,7 +16,6 @@ import { Label } from '../ui/label';
 import { RegionCreateDropdown } from '../RegionCreateDropdown';
 import { toast } from 'sonner';
 // import { getEmbedding } from '@/services/textEmbedding';
-// import { ComboboxDemo } from '../Combobox';
 
 
 interface CreatePostProps {
@@ -34,7 +33,7 @@ export const CreatePost = ({ isOpen, setIsOpen }: CreatePostProps) => {
 
     const handlePostCreate = async () => {
         setIsPostProcessing(true);
-        // if (content.length > 10) {
+        if (content.length > 10) {
             try {
                 // const response = await moderateText(content);
                 // if (response && response.role === "assistant") {
@@ -50,15 +49,15 @@ export const CreatePost = ({ isOpen, setIsOpen }: CreatePostProps) => {
                 // } else {
                 //     toast.error("Post couldn't be processed :(")
                 // }
-                console.log(selectedRegions);
-                toast.success("Post created successfully!");
+                console.log("Content:", content, "Selected Regions:", selectedRegions);
+                toast.success("Post will be processed!");
 
             } catch (error) {
                 console.log(error);
             }
-        // } else {
-        //     toast.error("Content should be at least 10 characters long");
-        // }
+        } else {
+            toast.error("Content should be at least 10 characters long");
+        }
 
         setIsPostProcessing(false);
     }
@@ -89,9 +88,6 @@ export const CreatePost = ({ isOpen, setIsOpen }: CreatePostProps) => {
                     <div className="flex flex-col gap-3">
                         <Label htmlFor='region' className='w-fit text-muted-foreground '>Regional Context <span className='text-[12px]'>(up to 3)</span></Label>
                         <RegionCreateDropdown setSelectedRegions={setSelectedRegions} />
-
-                        {/* <ComboboxDemo /> */}
-
                     </div>
                 </div>
 

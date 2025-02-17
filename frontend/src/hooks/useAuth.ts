@@ -1,10 +1,9 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { loginUser, registerUser, fetchUserProfile } from "@/services/authService";
 import { getToken, removeToken, setToken } from "@/lib/token";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import { IUser } from "@/types/user";
-// import { useAuthStore } from "@/store/authStore";
 
 // Login Hook
 export const useLogin = () => {
@@ -28,7 +27,6 @@ export const useRegister = () => {
 
 // Fetch User Hook
 export const useUserProfile = () => {
-    const queryClient = useQueryClient();
     const router = useRouter()
 
     const query = useQuery<IUser, Error>({
@@ -45,10 +43,6 @@ export const useUserProfile = () => {
     if (query.isError) {
         removeToken(); // Remove token
         router.push("/auth/login"); // Redirect to login page
-    }
-
-    if (query.data) {
-        queryClient.setQueryData(["user"], query.data);
     }
 
     return query;
