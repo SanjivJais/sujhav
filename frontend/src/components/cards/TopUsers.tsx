@@ -10,18 +10,18 @@ export const TopUsers = () => {
             profileImage: "https://github.com/shadcn.png",
         },
         {
-            name: "Sanjiv Jaiswal",
-            username: "sanjivjaiswal",
+            name: "Aayush Manandhar",
+            username: "aayushkoinbox",
             profileImage: "https://github.com/shadcn.png",
         },
         {
-            name: "Sanjiv Jaiswal",
-            username: "sanjivjaiswal",
+            name: "Yogesh Gurung",
+            username: "yogeshgurung",
             profileImage: "https://github.com/shadcn.png",
         },
         {
-            name: "Sanjiv Jaiswal",
-            username: "sanjivjaiswal",
+            name: "Rajan Pudasaini",
+            username: "rajanpudasaini",
             profileImage: "https://github.com/shadcn.png",
         },
     ]

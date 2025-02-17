@@ -17,7 +17,7 @@ namespace NepSolve.Models.Entities
         public string Content { get; set; }
 
         [BsonElement("regions")]
-        public List<PostRegion> Regions { get; set; } = new List<PostRegion>();  // Store region ID & name
+        public List<string> Regions { get; set; } = new List<string>();  // Store region ID & name
 
         [BsonElement("upvote")]
         public int Upvote { get; set; } = 0;
@@ -43,15 +43,5 @@ namespace NepSolve.Models.Entities
 
         [BsonElement("username")]
         public string Username { get; set; }
-    }
-
-    // Embedded region details
-    public class PostRegion
-    {
-        [BsonElement("id"), BsonRepresentation(BsonType.ObjectId)]
-        public string Id { get; set; }
-
-        [BsonElement("regionName")]
-        public string RegionName { get; set; }
     }
 }

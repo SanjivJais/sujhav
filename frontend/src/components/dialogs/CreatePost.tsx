@@ -12,10 +12,12 @@ import {
 import { Button } from '../ui/button';
 import { Textarea } from '../ui/textarea';
 import { Label } from '../ui/label';
-// import { moderateText } from '@/services/moderateService';
 import { RegionCreateDropdown } from '../RegionCreateDropdown';
 import { toast } from 'sonner';
-// import { getEmbedding } from '@/services/textEmbedding';
+import { useUserProfile } from '@/hooks/useAuth';
+import { moderateText } from '@/services/moderateService';
+import { getEmbedding } from '@/services/textEmbedding';
+import { useCreatePost } from '@/hooks/usePost';
 
 
 interface CreatePostProps {
@@ -28,32 +30,62 @@ export const CreatePost = ({ isOpen, setIsOpen }: CreatePostProps) => {
     const [selectedRegions, setSelectedRegions] = useState<string[]>([]);
     const [content, setContent] = useState<string>("");
     const [isPostProcessing, setIsPostProcessing] = useState(false);
-
+    const { data: user } = useUserProfile()
+    const { mutate: createPost } = useCreatePost()
 
 
     const handlePostCreate = async () => {
         setIsPostProcessing(true);
         if (content.length > 10) {
-            try {
-                // const response = await moderateText(content);
-                // if (response && response.role === "assistant") {
-                //     toast.info(`Moderation result: ${response.content}`);
-                // } else {
-                //     toast.error("Post couldn't be processed :(")
-                // }
+            if (selectedRegions.length >= 1) {
+                try {
 
-                // const response = await getEmbedding(content);
-                // if (response) {
-                //     console.log(response.float);
-                //     toast.success("Post created successfully!");
-                // } else {
-                //     toast.error("Post couldn't be processed :(")
-                // }
-                console.log("Content:", content, "Selected Regions:", selectedRegions);
-                toast.success("Post will be processed!");
+                    if (!user) {
+                        toast.error("Your account could not be fetched, please try again!");
+                        return
+                    }
 
-            } catch (error) {
-                console.log(error);
+                    const modResponse = await moderateText(content);
+                    if (modResponse && modResponse.role === "assistant") {
+                        if (JSON.parse(modResponse.content || "{}").status !== "unsafe") {
+                            const embedResponse = await getEmbedding(content);
+                            if (embedResponse && embedResponse.float) {
+
+                                const postData = {
+                                    content: content,
+                                    embedding: embedResponse.float[0],
+                                    regions: selectedRegions,
+                                    user: {
+                                        id: user.id,
+                                        username: user.username
+                                    }
+                                }
+                                createPost(postData, {
+                                    onSuccess: () => {
+                                        toast.success("Post created successfully!");
+                                        setIsOpen(false);
+                                    },
+                                    onError: () => {
+                                        toast.error("Post failed to upload!")
+                                    }
+                                })
+
+                            } else {
+                                toast.error("Post couldn't be processed :(")
+                            }
+                        } else {
+                            toast.error("Your post seems to be inapproariate, please try again!");
+                        }
+                    } else {
+                        toast.error("Post couldn't be processed :(")
+                    }
+
+                } catch (error) {
+                    console.log(error);
+                }
+
+            } else {
+                toast.error("Please select at least one region!");
             }
         } else {
             toast.error("Content should be at least 10 characters long");
@@ -83,10 +115,11 @@ export const CreatePost = ({ isOpen, setIsOpen }: CreatePostProps) => {
                             className='w-full'
                             rows={6}
                             onChange={(e) => setContent(e.target.value)}
+                            disabled={isPostProcessing}
                         />
                     </div>
                     <div className="flex flex-col gap-3">
-                        <Label htmlFor='region' className='w-fit text-muted-foreground '>Regional Context <span className='text-[12px]'>(up to 3)</span></Label>
+                        <Label className='w-fit text-muted-foreground '>Regional Context <span className='text-[12px]'>(up to 3)</span></Label>
                         <RegionCreateDropdown setSelectedRegions={setSelectedRegions} />
                     </div>
                 </div>

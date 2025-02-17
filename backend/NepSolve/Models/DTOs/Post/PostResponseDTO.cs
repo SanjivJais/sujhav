@@ -7,7 +7,7 @@ namespace NepSolve.Models.DTOs.Post
         public string Id { get; set; }
         public PostUser User { get; set; }
         public string Content { get; set; }
-        public List<PostRegion> Regions { get; set; }
+        public List<string> Regions { get; set; }
         public int Upvote { get; set; }
         public int Downvote { get; set; }
         public List<double> Embedding { get; set; }
