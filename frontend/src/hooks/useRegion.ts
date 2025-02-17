@@ -1,11 +1,13 @@
 import { createRegion, fetchRegions } from "@/services/regionService";
-import { IRegion } from "@/types/region";
+import { ICreateRegion, IRegion } from "@/types/region";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
 
 export const useCreateRegion = () => {
     return useMutation({
-        mutationFn: createRegion,
+        mutationFn: async ({createdBy, regionName}: ICreateRegion) => {
+          return await createRegion({createdBy, regionName});
+        },
         onSuccess: () => { },
         onError: () => {
             toast.error("Region couldn't be created!");

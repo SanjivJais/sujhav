@@ -18,20 +18,18 @@ import {
     PopoverContent,
     PopoverTrigger,
 } from "@/components/popoverDialog"
-import { useFetchRegions } from "@/hooks/useRegion"
+import { useCreateRegion, useFetchRegions } from "@/hooks/useRegion"
 import { IRegion } from "@/types/region"
 import { capitalizeString } from "@/utils/capitalizeString"
-// import { toast } from "sonner"
-// import { useUserProfile } from "@/hooks/useAuth"
+import { toast } from "sonner"
 
 interface RegionCreateProps {
     setSelectedRegions: (regions: string[]) => void;
 }
 
 export function RegionCreateDropdown({ setSelectedRegions }: RegionCreateProps) {
-    const { data: regions } = useFetchRegions()
-    // const { mutate: createRegion } = useCreateRegion()
-    // const { data: user } = useUserProfile()
+    const { data: regions = [] } = useFetchRegions()
+    const { mutate: createRegion } = useCreateRegion()
 
     const [open, setOpen] = useState(false)
     const [selRegions, setSelRegions] = useState<string[]>([])
@@ -41,11 +39,26 @@ export function RegionCreateDropdown({ setSelectedRegions }: RegionCreateProps) 
     useEffect(() => {
         if (regions && regions?.length > 0) {
             const filtered = regions
-                .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
-                .filter((region) => region.regionName.toLowerCase().includes(inputValue.toLowerCase()));
+                ?.filter(region => region && region.regionName) // Ensure valid region objects
+                ?.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+                ?.filter((region) => region.regionName.toLowerCase().includes(inputValue.toLowerCase())) || [];
             setFilteredRegions(filtered);
+        } else {
+            setFilteredRegions([]); // Ensure it's always an array
         }
     }, [regions, inputValue]);
+
+    const trimmedInput = inputValue.trim().toLowerCase();
+
+    // Check if input exactly matches any region
+    const isExactMatch = filteredRegions && filteredRegions.some(
+        (r) => r.regionName.toLowerCase() === trimmedInput
+    );
+
+    useEffect(() => {
+        console.log("Input value:", inputValue);
+        console.log("Filtered regions:", filteredRegions);
+    }, [inputValue, filteredRegions]);
 
     const toggleRegionSelection = async (regionName: string) => {
         setSelRegions((prev) => {
@@ -59,49 +72,38 @@ export function RegionCreateDropdown({ setSelectedRegions }: RegionCreateProps) 
         });
     };
 
-    // const handleCreateRegion = async () => {
-    //     try {
-    //         const regionName = inputValue.trim();
-    //         if (regionName.length > 2) {
-    //             if (!user) {
-    //                 toast.error("Something went wrong, please try again!");
-    //                 return;
-    //             }
-    //             createRegion({ createdBy: user.id, regionName },
-    //                 {
-    //                     onSuccess: async (response) => {
-    //                         setSelRegions((prev) => {
-    //                             const filtered = prev.filter((r) => r !== inputValue);
-    //                             return [...filtered, response.regionName]; // Add only the new region
-    //                         });
-    //                         setInputValue("");
-    //                     },
-    //                     onError: () => {
-    //                         toast.error("Region couldn't be created!");
-    //                     },
-    //                 }
-    //             );
-    //         }
-    //     } catch (error) {
-    //         console.error("Error creating region:", error);
-    //     }
-    // }
-
-    // const handleCreateRegionClick = async () => {
-    //     await handleCreateRegion(); // Ensure the region is created first
-    // };
+    const handleCreateRegion = () => {
+        try {
+            const regionName = inputValue.trim();
+            if (regionName.length > 2) {
+                toast.info(`Creating region: ${regionName}`);
+                createRegion({ createdBy: "67ac56cc28532c46201725cf", regionName },
+                    {
+                        onSuccess: (response) => {
+                            setSelRegions((prev) => {
+                                const filtered = prev.filter((r) => r !== inputValue);
+                                return [...filtered, response.regionName]; // Add only the new region
+                            });
+                            toggleRegionSelection(response.regionName);
+                            setInputValue("");
+                        },
+                        onError: () => {
+                            toast.error("Region couldn't be created!");
+                        },
+                    }
+                );
+            } else {
+                toast.error("Region name should be at least 3 characters long");
+            }
+        } catch (error) {
+            console.error("Error creating region:", error);
+        }
+    }
 
     useEffect(() => {
         setSelectedRegions(selRegions);
     }, [selRegions, setSelectedRegions]);
 
-    // useEffect(() => {
-    //     if (regions?.some((r) => r.regionName === inputValue)) {
-    //         toggleRegionSelection(inputValue);
-    //     }
-    // }, [regions, inputValue]); // Runs only when `regions` update, avoiding extra renders
-
-    // if (isRegionsLoading) return <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
 
     return (
         <Popover open={open} onOpenChange={setOpen}>
@@ -129,7 +131,8 @@ export function RegionCreateDropdown({ setSelectedRegions }: RegionCreateProps) 
                     <CommandList className='max-h-[170px] overflow-y-auto'>
                         {filteredRegions && filteredRegions.length > 0 ? (
                             <CommandGroup>
-                                {filteredRegions.map((region) => (
+                                {filteredRegions?.map((region) => (
+                                    region &&
                                     <CommandItem
                                         key={region.id}
                                         value={region.regionName}
@@ -148,17 +151,14 @@ export function RegionCreateDropdown({ setSelectedRegions }: RegionCreateProps) 
                         ) : (
                             <CommandEmpty>No region found.</CommandEmpty>
                         )}
-                        {inputValue && filteredRegions &&
-                            !filteredRegions.some((r) => r.regionName.toLowerCase() === inputValue.toLowerCase()) &&
-                            selRegions.length < 3 && ( // Prevent adding more than 3 regions
-                                <CommandItem
-                                    // onSelect={handleCreateRegionClick}
-                                    className='cursor-pointer'
-                                >
-                                    <PlusCircle className="mr-2 h-4 w-4" />
-                                    Create &quot;{capitalizeString(inputValue)}&quot;
-                                </CommandItem>
-                            )}
+
+                        {/* Show Create option only if there's no exact match and max regions not exceeded */}
+                        {trimmedInput.length > 2 && !isExactMatch && selRegions.length < 3 && (
+                            <CommandItem onSelect={handleCreateRegion} className="cursor-pointer">
+                                <PlusCircle className="mr-2 h-4 w-4" />
+                                Create &quot;{capitalizeString(inputValue)}&quot;
+                            </CommandItem>
+                        )}
                     </CommandList>
                 </Command>
             </PopoverContent>
