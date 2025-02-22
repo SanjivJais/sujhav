@@ -65,8 +65,9 @@ export const CreatePost = ({ isOpen, setIsOpen }: CreatePostProps) => {
                                         toast.success("Post created successfully!");
                                         setIsOpen(false);
                                     },
-                                    onError: () => {
+                                    onError: (error) => {
                                         toast.error("Post failed to upload!")
+                                        console.log(error)
                                     }
                                 })
 

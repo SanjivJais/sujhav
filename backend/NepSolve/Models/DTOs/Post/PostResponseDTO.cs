@@ -10,7 +10,7 @@ namespace NepSolve.Models.DTOs.Post
         public List<string> Regions { get; set; }
         public int Upvote { get; set; }
         public int Downvote { get; set; }
-        public List<double> Embedding { get; set; }
+        public double[] Embedding { get; set; }
         public DateTime CreatedAt { get; set; }
         public DateTime UpdatedAt { get; set; }
     }

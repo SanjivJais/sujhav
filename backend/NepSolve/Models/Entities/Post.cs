@@ -26,7 +26,7 @@ namespace NepSolve.Models.Entities
         public int Downvote { get; set; } = 0;
 
         [BsonElement("embedding")]
-        public List<double> Embedding { get; set; } = new List<double>();  // An AI-generated text embedding vector
+        public double[] Embedding { get; set; } = Array.Empty<double>();  // An AI-generated text embedding vector
 
         [BsonElement("createdAt")]
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;

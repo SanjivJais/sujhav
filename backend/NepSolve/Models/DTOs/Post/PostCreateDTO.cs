@@ -7,6 +7,6 @@ namespace NepSolve.Models.DTOs.Post
         public PostUser User { get; set; }  // Store user ID & username
         public string Content { get; set; }
         public List<string> Regions { get; set; }  // Store regionName
-        public List<double> Embedding { get; set; }  // An AI-generated text embedding vector
+        public double[] Embedding { get; set; }  // An AI-generated text embedding vector
     }
 }
