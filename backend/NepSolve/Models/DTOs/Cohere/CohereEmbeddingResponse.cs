@@ -19,6 +19,7 @@ namespace NepSolve.Models.DTOs.Cohere
 
     public class EmbeddingApiResponse
     {
+        [JsonPropertyName("embeddings")]
         public double[] Embeddings { get; set; }
     }
 

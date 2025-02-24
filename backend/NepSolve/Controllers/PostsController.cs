@@ -9,6 +9,7 @@ using NepSolve.Models.Entities;
 using NepSolve.Models.DTOs.Cluster;
 using NepSolve.Models.DTOs.Groq;
 using NepSolve.Models.DTOs.Cohere;
+using System.Net.Http.Headers;
 
 namespace NepSolve.Controllers
 {
@@ -21,12 +22,14 @@ namespace NepSolve.Controllers
 
         private readonly HttpClient _httpClient;
         private readonly IConfiguration _configuration;
-        public PostsController(MongoDbService dbService, HttpClient httpClient, IConfiguration configuration)
+        private readonly IHttpContextAccessor _httpContextAccessor;
+        public PostsController(MongoDbService dbService, HttpClient httpClient, IConfiguration configuration, IHttpContextAccessor httpContextAccessor)
         {
             _posts = dbService.Database?.GetCollection<Post>("posts");
             _clusters = dbService.Database?.GetCollection<Cluster>("clusters");
             _httpClient = httpClient;
             _configuration = configuration;
+            _httpContextAccessor = httpContextAccessor;
         }
 
         // get posts by ids
@@ -153,6 +156,7 @@ namespace NepSolve.Controllers
                 // Insert the post
                 await _posts.InsertOneAsync(post);
 
+
                 // clustering logic
 
                 // 1. Get semantically appropriate clusters
@@ -214,7 +218,6 @@ namespace NepSolve.Controllers
 
                     // get topic and summary for the post
                     var summaryResponse = await GetPostsSummary(postRequest.Content);
-                    Console.WriteLine("Summary Response: " + JsonSerializer.Serialize(summaryResponse));
 
                     if (summaryResponse == null)
                     {
@@ -223,7 +226,7 @@ namespace NepSolve.Controllers
 
                     // get summary embedding
                     var summaryEmbedding = await GetTextEmbedding(new List<string> { summaryResponse.ClusterSummary });
-                    Console.WriteLine("Summary Embedding: " + JsonSerializer.Serialize(summaryEmbedding));
+                    
                     if (summaryEmbedding == null)
                     {
                         return StatusCode(500, new { message = "Failed to create summary embedding.", error = "Internal server error." });
@@ -237,20 +240,24 @@ namespace NepSolve.Controllers
                         Posts = new List<string> { post.Id },
                         Regions = postRequest.Regions
                     };
-                    // Log the serialized request object
-                    Console.WriteLine("Cluster object: " + JsonSerializer.Serialize(clusterRequest));
+
+                    var token = _httpContextAccessor.HttpContext?.Request.Headers["Authorization"].ToString();
+                    if(string.IsNullOrEmpty(token))
+                        return Unauthorized(new { message = "Unauthorized access." });
 
                     var jsonContent = new StringContent(JsonSerializer.Serialize(clusterRequest), Encoding.UTF8, "application/json");
 
-                    // Log the actual JSON string
-                    Console.WriteLine("Cluster Creation Request: " + await jsonContent.ReadAsStringAsync());
 
-                    var response = await _httpClient.PostAsync($"{_configuration["BACKEND_BASE_URL"]}/api/clusters/create", jsonContent);
+                    var request = new HttpRequestMessage(HttpMethod.Post, $"{_configuration["BACKEND_BASE_URL"]}/api/clusters/create")
+                    {
+                        Content = jsonContent
+                    };
+                    request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token.Replace("Bearer ", ""));
+                    var response = await _httpClient.SendAsync(request);
+                                       
                     if (!response.IsSuccessStatusCode)
                         return StatusCode(500, new { message = "Failed to create a new cluster.", error = "Internal server error." });
                 }
-
-
                 return CreatedAtAction(nameof(GetPost), new { id = post.Id }, post);
             }
             catch (Exception ex)
@@ -278,38 +285,53 @@ namespace NepSolve.Controllers
 
         private async Task<GroqSummaryResponseDTO> GetPostsSummary(string content)
         {
-            //var jsonContent = new StringContent(JsonSerializer.Serialize(content), Encoding.UTF8, "application/json");
-            //var response = await _httpClient.PostAsync($"{_configuration["BACKEND_BASE_URL"]}/api/ai/summarize", jsonContent);
-            //Console.WriteLine("Raw Groq Summary API Response: " + response);
-            //if (!response.IsSuccessStatusCode)
-            //    return null;
-            var testJson = "{\"topic\": \"Test Topic\", \"clusterSummary\": \"Test Summary\"}";
-            var testResponse = JsonSerializer.Deserialize<GroqSummaryResponseDTO>(testJson);
-            Console.WriteLine("Test Response: " + JsonSerializer.Serialize(testResponse));
-            //var responseData = await response.Content.ReadAsStringAsync();
-            //Console.WriteLine("Summary API Response: " + responseData);
-            return JsonSerializer.Deserialize<GroqSummaryResponseDTO>(testJson); // Adjust the type based on response structure
+            var token = _httpContextAccessor.HttpContext?.Request.Headers["Authorization"].ToString();
+
+            if (string.IsNullOrEmpty(token))
+                return null; // Or handle unauthorized case
+
+            var jsonContent = new StringContent(JsonSerializer.Serialize(content), Encoding.UTF8, "application/json");
+
+            var request = new HttpRequestMessage(HttpMethod.Post, $"{_configuration["BACKEND_BASE_URL"]}/api/ai/summarize")
+            {
+                Content = jsonContent
+            };
+            request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token.Replace("Bearer ", ""));
+
+            var response = await _httpClient.SendAsync(request);
+            if (!response.IsSuccessStatusCode)
+                return null;
+
+            var responseData = await response.Content.ReadAsStringAsync();
+            return JsonSerializer.Deserialize<GroqSummaryResponseDTO>(responseData);
         }
 
         private async Task<double[]> GetTextEmbedding(List<string> texts)
         {
-            //var jsonContent = new StringContent(JsonSerializer.Serialize(texts), Encoding.UTF8, "application/json");
-            //var response = await _httpClient.PostAsync($"{_configuration["BACKEND_BASE_URL"]}/api/ai/embedding", jsonContent);
-            //if (!response.IsSuccessStatusCode)
-            //    return null;
 
-            //var responseData = await response.Content.ReadAsStringAsync();
-            //Console.WriteLine("Embedding API Response: " + responseData);
+            var token = _httpContextAccessor.HttpContext?.Request.Headers["Authorization"].ToString();
+            if (string.IsNullOrEmpty(token))
+                return null; // Or handle unauthorized case
 
-            //dummy response data
-            var responseData = "{\"embeddings\": [0.1, 0.2, 0.3]}";
+            var jsonContent = new StringContent(JsonSerializer.Serialize(texts), Encoding.UTF8, "application/json");
+
+            var request = new HttpRequestMessage(HttpMethod.Post, $"{_configuration["BACKEND_BASE_URL"]}/api/ai/embedding")
+            {
+                Content = jsonContent
+            };
+            request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token.Replace("Bearer ", ""));
+
+            var response = await _httpClient.SendAsync(request);
+
+            if (!response.IsSuccessStatusCode)
+                return null;
+
+            var responseData = await response.Content.ReadAsStringAsync();
 
             // Deserialize directly into EmbeddingApiResponse
             var embeddingResponse = JsonSerializer.Deserialize<EmbeddingApiResponse>(responseData);
-            Console.WriteLine("Embedding Response: " + JsonSerializer.Serialize(embeddingResponse));
-            //if (embeddingResponse == null || embeddingResponse.Embeddings == null)
-            //    return new double[0];  // Return empty array if something goes wrong
-            Console.WriteLine("Embedding data Response: " + JsonSerializer.Serialize(embeddingResponse.Embeddings));
+            if (embeddingResponse == null || embeddingResponse.Embeddings == null)
+                return new double[0];  // Return empty array if something goes wrong
             return embeddingResponse.Embeddings;
         }
 

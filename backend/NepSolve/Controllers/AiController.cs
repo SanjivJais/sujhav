@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using NepSolve.Models.DTOs.Groq;
 using NepSolve.Models.DTOs.Cohere;
+using Microsoft.AspNetCore.Authorization;
 
 namespace NepSolve.Controllers
 {
@@ -23,10 +24,13 @@ namespace NepSolve.Controllers
 
 
         [HttpPost("summarize")]
+        [Authorize]
         public async Task<IActionResult> SummarizeText([FromBody] string inputText)
         {
             if (string.IsNullOrWhiteSpace(inputText))
                 return BadRequest("Input text cannot be empty");
+
+            
 
             var requestBody = new GroqRequestDTO
             {
@@ -37,7 +41,11 @@ namespace NepSolve.Controllers
                         Role = "system",
                         Content = "You are an expert at summarizing textual content and also generating a concise and short topic for the content. You'll get a text content and generate a topic and a short summary of maximum 150 words and return only a JSON response in the following format:\n\n{\n\"topic\": \"<generated_topic>\",\n\"clusterSummary\": \"<generated_summary>\"\n}"
                     },
-                    new Message { Role = "user", Content = inputText }
+                    new Message 
+                    { 
+                        Role = "user", 
+                        Content = inputText 
+                    }
                 }
             };
 
@@ -51,15 +59,25 @@ namespace NepSolve.Controllers
                 return StatusCode((int)response.StatusCode, "Failed to fetch summary");
 
             var responseData = await response.Content.ReadAsStringAsync();
-            var groqResponse = JsonSerializer.Deserialize<GroqSummaryResponseDTO>(responseData);
+            //Console.WriteLine("Groq Raw Response: " + responseData);
 
-            return Ok(groqResponse);
+            var groqApiResponse = JsonSerializer.Deserialize<GroqResponse>(responseData);
+
+            if (groqApiResponse == null || groqApiResponse.Choices == null || groqApiResponse.Choices.Count == 0)
+                return StatusCode(500, "Invalid response from Groq API");
+
+            var rawContent = groqApiResponse.Choices[0].Message.Content;
+            //Console.WriteLine("Extracted Content: " + rawContent);
+
+            var summaryResponse = JsonSerializer.Deserialize<GroqSummaryResponseDTO>(rawContent);
+
+            return Ok(summaryResponse);
         }
 
 
 
-
         [HttpPost("embedding")]
+        [Authorize]
         public async Task<IActionResult> GetEmbedding([FromBody] List<string> texts)
         {
             if (texts == null || texts.Count == 0)
