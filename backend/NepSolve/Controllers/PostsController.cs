@@ -153,10 +153,6 @@ namespace NepSolve.Controllers
                     Embedding = postRequest.Embedding
                 };
 
-                // Insert the post
-                await _posts.InsertOneAsync(post);
-
-
                 // clustering logic
 
                 // 1. Get semantically appropriate clusters
@@ -258,6 +254,8 @@ namespace NepSolve.Controllers
                     if (!response.IsSuccessStatusCode)
                         return StatusCode(500, new { message = "Failed to create a new cluster.", error = "Internal server error." });
                 }
+                // Insert the post
+                await _posts.InsertOneAsync(post);
                 return CreatedAtAction(nameof(GetPost), new { id = post.Id }, post);
             }
             catch (Exception ex)
@@ -275,8 +273,8 @@ namespace NepSolve.Controllers
 
             var response = await _httpClient.PostAsync($"{_configuration["BACKEND_BASE_URL"]}/api/clusters/find-clusters", jsonContent);
 
-            //if (!response.IsSuccessStatusCode)
-            //    return null;
+            if (!response.IsSuccessStatusCode)
+                return null;
 
             var responseData = await response.Content.ReadAsStringAsync();
             return JsonSerializer.Deserialize<List<SearchClusterResponseDTO>>(responseData); // Adjust the type based on response structure

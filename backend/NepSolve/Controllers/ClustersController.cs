@@ -48,6 +48,14 @@ namespace NepSolve.Controllers
                             }
                         }
                     },
+                    new BsonDocument
+                    {
+                        { "$addFields", new BsonDocument
+                            {
+                                { "similarity", new BsonDocument("$meta", "vectorSearchScore") } // Ensure similarity score is set
+                            }
+                        }
+                    },
                     // Project similarity score
                     new BsonDocument
                     {
@@ -60,7 +68,7 @@ namespace NepSolve.Controllers
                                 { "regions", 1 },
                                 { "tags", 1 },
                                 { "labels", 1 },
-                                { "similarity", new BsonDocument("$meta", "searchScore") }
+                                { "similarity", 1 }
                             }
                         }
                     }
@@ -73,6 +81,18 @@ namespace NepSolve.Controllers
                 // Filter out results below the threshold
                 var filteredClusters = clusters
                     .Where(c => c["similarity"].AsDouble >= similarityThreshold)
+                    .Select(c => new SearchClusterResponseDTO
+                    {
+                        Id = c["_id"].ToString(),
+                        Topic = c.GetValue("topic", "").ToString(),
+                        ClusterSummary = c.GetValue("clusterSummary", "").ToString(),
+                        Posts = c.GetValue("posts", new BsonArray()).AsBsonArray.Select(p => p.ToString()).ToList(),
+                        Regions = c.GetValue("regions", new BsonArray()).AsBsonArray.Select(r => r.ToString()).ToList(),
+                        Tags = c.GetValue("tags", new BsonArray()).AsBsonArray.Select(t => t.ToString()).ToList(),
+                        Labels = c.GetValue("labels", new BsonArray()).AsBsonArray.Select(l => l.ToString()).ToList(),
+                        Similarity = c["similarity"].AsDouble
+                    }
+                    )
                     .ToList();
 
                 return Ok(filteredClusters);
@@ -82,6 +102,7 @@ namespace NepSolve.Controllers
                 return StatusCode(500, new { message = "Internal Server Error", error = ex.Message });
             }
         }
+
 
         // Create a new cluster
         [HttpPost("create")]
@@ -120,6 +141,8 @@ namespace NepSolve.Controllers
             }
         }
 
+
+
         // Get a specific cluster by ID
         [HttpGet("{id}")]
         public async Task<IActionResult> GetCluster([FromRoute] string id)
@@ -138,6 +161,21 @@ namespace NepSolve.Controllers
             }
         }
 
+
+        // fetch clusters
+        [HttpGet]
+        public async Task<IActionResult> FetchClusters()
+        {
+            try
+            {
+                var clusters = await _clusters.Find(_ => true).ToListAsync();
+                return Ok(clusters);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "Internal Server Error", error = ex.Message });
+            }
+        }
 
     }
 

@@ -23,6 +23,7 @@
     "cmdk": "^1.0.4",
     "cohere-ai": "^7.15.4",
     "date-fns": "^4.1.0",
+    "date-fns-tz": "^3.2.0",
     "groq-sdk": "^0.15.0",
     "js-cookie": "^3.0.5",
     "lucide-react": "^0.474.0",
