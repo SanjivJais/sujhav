@@ -23,6 +23,12 @@ export const ClusterCard = ({ cluster }: { cluster: ICluster }) => {
                     return (<Link href={`/u?tag=${tag}`} key={tag} className='text-blue-400 text-sm hover:underline'>{`#${tagLabel}`}</Link>)
                 })}
             </div>
+            <div className="flex flex-wrap gap-2">
+                {cluster.regions.map((region) => {
+                    const regionLabel = toPascalCase(region);
+                    return (<Link href={`/u?region=${region}`} key={region} className='text-blue-400 text-sm hover:underline'>{`#${regionLabel}`}</Link>)
+                })}
+            </div>
 
             <div className="flex mt-2">
                 <div title='Posts' className="flex items-center gap-1 group hover:cursor-pointer hover:text-primary">
