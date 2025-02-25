@@ -8,7 +8,7 @@ export const SideMenu = () => {
             href: "/u",
         },
         {
-            name: "Hot Clusters",
+            name: "Hot Topics",
             href: "#",
         },
         {

@@ -15,3 +15,8 @@ export const fetchPost = async (id: string): Promise<IPost> => {
     const response = await apiClient.get(`/posts/${id}`);
     return response.data;
 };
+
+export const fetchPostsByIds = async (postIds: string[]): Promise<IPost[]> => {
+    const response = await apiClient.post("/posts/get-posts-by-ids", { postIds });
+    return response.data;
+};

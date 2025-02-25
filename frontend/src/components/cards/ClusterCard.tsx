@@ -4,9 +4,11 @@ import { Box } from 'lucide-react'
 import React from 'react'
 import { format, toZonedTime } from "date-fns-tz";
 import Link from 'next/link';
+import { ViewCluster } from '../dialogs/ViewCluster';
 
 export const ClusterCard = ({ cluster }: { cluster: ICluster }) => {
 
+    const [isViewOpen, setIsViewOpen] = React.useState(false);
     const updatedAt = toZonedTime(new Date(cluster.updatedAt), Intl.DateTimeFormat().resolvedOptions().timeZone);
 
     return (
@@ -14,7 +16,12 @@ export const ClusterCard = ({ cluster }: { cluster: ICluster }) => {
             <div className="flex gap-2">
                 <div className='text-[12px] text-muted-foreground'>Updated: {format(updatedAt, "hh:mm aaa - d MMM")}</div>
             </div>
-            <div className='text-lg font-medium hover:text-primary cursor-pointer w-fit'>{cluster.topic}</div>
+            <div
+                className='text-lg font-medium hover:text-primary cursor-pointer w-fit'
+                onClick={() => setIsViewOpen(true)}
+            >
+                {cluster.topic}
+            </div>
             <p className='text-muted-foreground text-sm'>{cluster.clusterSummary}</p>
 
             <div className="flex flex-wrap gap-2">
@@ -36,6 +43,7 @@ export const ClusterCard = ({ cluster }: { cluster: ICluster }) => {
                     {cluster.posts.length}
                 </div>
             </div>
+            <ViewCluster clusterId={cluster.id} isOpen={isViewOpen} setIsOpen={setIsViewOpen} />
         </div>
     )
 }

@@ -1,4 +1,4 @@
-import { createPost, fetchPosts } from "@/services/postService";
+import { createPost, fetchPosts, fetchPostsByIds } from "@/services/postService";
 import { IPost, PostCreate } from "@/types/post";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
@@ -25,6 +25,17 @@ export const useFetchPosts = (page = 1, pageSize = 10) => {
     if (query.isError) {
         toast.error("Posts couldn't be fetched!");
     }
-
     return query;
 };
+
+
+export const useFetchPostsByIds = (postIds: string[]) => useQuery<IPost[], Error>({
+    queryKey: ["posts-by-ids", postIds], // Include parameters in queryKey
+    queryFn: async () => {
+        const response = await fetchPostsByIds(postIds);
+        return response;
+    }, // Pass parameters to fetchPosts
+    staleTime: 1000 * 60 * 20, // Enables smooth pagination
+    refetchOnWindowFocus: true, // ✅ Refresh data when user refocuses app
+
+});
