@@ -25,11 +25,11 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <head>
         <link rel="manifest" href="/manifest.json" />
-        <meta name="theme-color" content="#E11D48" />
+        <meta name="theme-color" content="#0C0A09" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-        <meta name="apple-mobile-web-app-title" content="Your App Name" />
-        <link rel="apple-touch-icon" href="/icons/icon-192x192.png" />
+        <meta name="apple-mobile-web-app-title" content="Sujhav" />
+        <link rel="apple-touch-icon" href="/icons/icon_192x192.png" />
       </head>
       <body
         className={`${poppins.variable} antialiased`}

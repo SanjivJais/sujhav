@@ -5,16 +5,16 @@
     "start_url": "/",
     "display": "standalone",
     "background_color": "#E11D48",
-    "theme_color": "#E11D48",
+    "theme_color": "#0C0A09",
     "orientation": "portrait",
     "icons": [
         {
-            "src": "/icons/Square_trans_logo.svg",
-            "type": "image/svg+xml",
-            "sizes": "512x512"
+            "src": "/icons/icon_192x192.png",
+            "type": "image/png",
+            "sizes": "192x192"
         },
         {
-            "src": "/icons/Square_trans_logo.png",
+            "src": "/icons/icon_512x512.png",
             "type": "image/png",
             "sizes": "512x512"
         }
