@@ -23,6 +23,14 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
+      <head>
+        <link rel="manifest" href="/manifest.json" />
+        <meta name="theme-color" content="#E11D48" />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+        <meta name="apple-mobile-web-app-title" content="Your App Name" />
+        <link rel="apple-touch-icon" href="/icons/icon-192x192.png" />
+      </head>
       <body
         className={`${poppins.variable} antialiased`}
       >
@@ -34,7 +42,7 @@ export default function RootLayout({
         >
           <Toaster richColors position="top-center" />
           <TanstackQueryClientProvider>
-              {children}
+            {children}
           </TanstackQueryClientProvider>
         </ThemeProvider>
       </body>

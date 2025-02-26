@@ -1,0 +1,22 @@
+{
+    "name": "Sujhav - Solving Nepal Together!",
+    "short_name": "Sujhav",
+    "description": "AI-powered platform for crowdsourcing issues, ideas, and suggestions!",
+    "start_url": "/",
+    "display": "standalone",
+    "background_color": "#E11D48",
+    "theme_color": "#E11D48",
+    "orientation": "portrait",
+    "icons": [
+        {
+            "src": "/icons/Square_trans_logo.svg",
+            "type": "image/svg+xml",
+            "sizes": "512x512"
+        },
+        {
+            "src": "/icons/Square_trans_logo.png",
+            "type": "image/png",
+            "sizes": "512x512"
+        }
+    ]
+}
