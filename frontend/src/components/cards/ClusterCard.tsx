@@ -2,19 +2,19 @@ import { ICluster } from '@/types/cluster'
 import { toPascalCase } from '@/utils/toPascalCase'
 import { Box } from 'lucide-react'
 import React from 'react'
-import { format, toZonedTime } from "date-fns-tz";
+import { format } from "date-fns-tz";
 import Link from 'next/link';
 import { ViewCluster } from '../dialogs/ViewCluster';
+import { utcToLocal } from '@/lib/dateTime';
 
 export const ClusterCard = ({ cluster }: { cluster: ICluster }) => {
 
     const [isViewOpen, setIsViewOpen] = React.useState(false);
-    const updatedAt = toZonedTime(new Date(cluster.updatedAt), Intl.DateTimeFormat().resolvedOptions().timeZone);
 
     return (
         <div className='bg-transparent border rounded-xl p-4 flex flex-col gap-2 hover:bg-accent/50'>
             <div className="flex gap-2">
-                <div className='text-[12px] text-muted-foreground'>Updated: {format(updatedAt, "hh:mm aaa - d MMM")}</div>
+                <div className='text-[12px] text-muted-foreground'>Updated: {format(utcToLocal(cluster.updatedAt), "hh:mm aaa - d MMM")}</div>
             </div>
             <div
                 className='text-lg font-medium hover:text-primary cursor-pointer w-fit'
