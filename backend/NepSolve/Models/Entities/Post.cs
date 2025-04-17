@@ -11,7 +11,7 @@ namespace NepSolve.Models.Entities
         public string Id { get; set; } = ObjectId.GenerateNewId().ToString();
 
         [BsonElement("user"), Required]
-        public PostUser User { get; set; }  // Store user ID & username
+        public PostUser User { get; set; }  
 
         [BsonElement("content"), Required]
         public string Content { get; set; }
