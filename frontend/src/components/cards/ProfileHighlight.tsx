@@ -14,7 +14,7 @@ export const ProfileHighlight = () => {
     }
 
     return (
-        <div className='bg-accent rounded-md p-4 flex flex-col gap-3'>
+        <div className='bg-accent rounded-md p-4 flex flex-col gap-3 h-fit'>
             <Link href="/u/profile">
                 <User
                     profileImage="https://github.com/shadcn.png"

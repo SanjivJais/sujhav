@@ -64,7 +64,7 @@ namespace NepSolve.Controllers
             {
                 if (page < 1 || pageSize < 1)
                 {
-                    return BadRequest(new { message= "Invalid pagination!" });
+                    return BadRequest(new { message = "Invalid pagination!" });
                 }
 
                 // Calculate the number of documents to skip
@@ -123,7 +123,7 @@ namespace NepSolve.Controllers
         {
             try
             {
-                if(postRequest.Content.Length<10)
+                if (postRequest.Content.Length < 10)
                 {
                     return BadRequest(new { message = "Post content should be at least 10 characters long!" });
                 }
@@ -222,7 +222,7 @@ namespace NepSolve.Controllers
 
                     // get summary embedding
                     var summaryEmbedding = await GetTextEmbedding(new List<string> { summaryResponse.ClusterSummary });
-                    
+
                     if (summaryEmbedding == null)
                     {
                         return StatusCode(500, new { message = "Failed to create summary embedding.", error = "Internal server error." });
@@ -238,7 +238,7 @@ namespace NepSolve.Controllers
                     };
 
                     var token = _httpContextAccessor.HttpContext?.Request.Headers["Authorization"].ToString();
-                    if(string.IsNullOrEmpty(token))
+                    if (string.IsNullOrEmpty(token))
                         return Unauthorized(new { message = "Unauthorized access." });
 
                     var jsonContent = new StringContent(JsonSerializer.Serialize(clusterRequest), Encoding.UTF8, "application/json");
@@ -250,13 +250,30 @@ namespace NepSolve.Controllers
                     };
                     request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token.Replace("Bearer ", ""));
                     var response = await _httpClient.SendAsync(request);
-                                       
+
                     if (!response.IsSuccessStatusCode)
                         return StatusCode(500, new { message = "Failed to create a new cluster.", error = "Internal server error." });
                 }
                 // Insert the post
                 await _posts.InsertOneAsync(post);
                 return CreatedAtAction(nameof(GetPost), new { id = post.Id }, post);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "Internal Server Error", error = ex.Message });
+            }
+        }
+
+        [HttpGet("user/{userId}")]
+        [Authorize]
+        public async Task<IActionResult> GetUserPosts([FromRoute] string userId)
+        {
+            try
+            {
+                var posts = await _posts.Find(p => p.User.Id == userId).ToListAsync();
+                if (posts == null || posts.Count == 0)
+                    return NotFound(new { message = "No posts found for this user." });
+                return Ok(posts);
             }
             catch (Exception ex)
             {

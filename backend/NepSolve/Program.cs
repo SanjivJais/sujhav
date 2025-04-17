@@ -39,12 +39,6 @@ builder.Services.AddScoped<JwtHandler>();
 // Define a CORS policy
 builder.Services.AddCors(options =>
 {
-    // options.AddPolicy("AllowFrontend", policy =>
-    // {
-    //     policy.WithOrigins("https://sujhav.vercel.app")
-    //           .AllowAnyHeader()
-    //           .AllowAnyMethod();
-    // });
 
     options.AddPolicy("AllowFrontend", policy =>
     {

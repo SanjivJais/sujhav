@@ -8,7 +8,7 @@ export const ClusterFeed = () => {
 
     return (
         <div className='flex flex-col gap-4 hide-scrollbar max-h-full overflow-y-auto'>
-            {clusters && clusters.map((cluster) => (
+            {clusters && clusters.sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()).map((cluster) => (
                 <ClusterCard key={cluster.id} cluster={cluster} />
             ))}
         </div>
